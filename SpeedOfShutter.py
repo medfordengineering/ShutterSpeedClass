@@ -1,10 +1,10 @@
-class PulseWidth:
+class PulseSplit:
     from rp2 import PIO, StateMachine, asm_pio
     from machine import Pin
     counter=0
     @asm_pio()
     def pulse_capture():
-        #wrap_target()
+
         mov(x, invert(null)) #move the full monty-32bits to the x register
         wait(1, pin, 0)      #wait for shutter sensor to see light
         label("timer")
@@ -15,14 +15,14 @@ class PulseWidth:
         label("timerstop")      
         mov(isr, invert(x))      
         push()    
-        #wrap()
+ 
         
-    def __init__(self,pulsePin):
-        self.sm = PulseWidth.StateMachine(PulseWidth.counter,PulseWidth.pulse_capture,freq=1_000_000, in_base=pulsePin, jmp_pin=pulsePin)
+    def __init__(self,pulsePin1, pulsePin2):
+        self.sm = PulseSplit.StateMachine(PulseSplit.counter,PulseSplit.pulse_capture,freq=1_000_000, in_base=pulsePin1, jmp_pin=pulsePin2)
         self.sm.active(1)
-        PulseWidth.counter += 1
+        PulseSplit.counter += 1
         
-    def pulse_width(self):
+    def pulse_split(self):
         if self.sm.rx_fifo() > 0:   #Allow python to check if there is available data
             return self.sm.get() *2
         else:
